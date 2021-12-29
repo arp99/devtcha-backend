@@ -8,7 +8,7 @@ const errorHandler = require("./Middlewares/errorHandler");
 const { verifyAuth } = require("./Middlewares/authentication");
 
 const user = require("./Routers/user.router");
-// const post = require("./Routers/post.router");
+const post = require("./Routers/post.router");
 const login = require("./Routers/login.router");
 const signup = require("./Routers/signup.router");
 
@@ -34,7 +34,7 @@ app.use("/api/signup", signup);
 
 app.use(verifyAuth);
 app.use("/api/user", user);
-// app.use("/api/post", post);
+app.use("/api/post", post);
 
 app.use(routeNotFoundHandler);
 app.use(errorHandler);
