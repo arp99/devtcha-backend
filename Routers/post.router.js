@@ -7,11 +7,12 @@ const {
   removeReactionFromPost,
 } = require("../Controllers/post.controller");
 const router = express.Router();
+const { verifyAuth } = require("../Middlewares/authentication")
 
 router
   .route("/")
-  .get(getAllPosts) //this will be paginated later on
-  .post(createPost);
+  .get(verifyAuth, getAllPosts) //this will be paginated later on
+  .post(verifyAuth, createPost);
 
 // Get post of a particular user
 // router.get("/:userId", getPostsByUser);
@@ -19,11 +20,11 @@ router
 router
   .route("/:postId")
   // .put(editPost)
-  .delete(deletePost);
+  .delete(verifyAuth, deletePost);
 
 router
   .route("/:postId/:reaction")
-  .post(reactToPost)
-  .delete(removeReactionFromPost);
+  .post(verifyAuth, reactToPost)
+  .delete(verifyAuth, removeReactionFromPost);
 
 module.exports = router;

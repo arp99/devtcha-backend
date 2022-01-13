@@ -5,12 +5,14 @@ const {
   followUser,
   unFollowUser,
 } = require("../Controllers/user.controller");
+const { verifyAuth } = require("../Middlewares/authentication")
+
 const router = express.Router();
 
-router.route("/").get(getUserData);
-router.route("/update-profile-picture").post(updateProfilePicture);
+router.route("/").get(verifyAuth, getUserData);
+router.route("/update-profile-picture").post(verifyAuth, updateProfilePicture);
 
-router.route("/follow").post(followUser);
-router.route("/unfollow").delete(unFollowUser);
+router.route("/follow").post(verifyAuth, followUser);
+router.route("/unfollow").delete(verifyAuth, unFollowUser);
 
 module.exports = router;
