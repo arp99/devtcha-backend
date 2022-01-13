@@ -28,6 +28,13 @@ app.use(
 // start DB connection
 connectToDb();
 
+app.get("/", (req, res) => {
+  res.json("Hello from the other side");
+});
+
+app.use(routeNotFoundHandler);
+app.use(errorHandler);
+
 //Use the routes
 app.use("/api/login", login);
 app.use("/api/signup", signup);
@@ -36,12 +43,6 @@ app.use(verifyAuth);
 app.use("/api/user", user);
 app.use("/api/post", post);
 
-app.use(routeNotFoundHandler);
-app.use(errorHandler);
-
-app.get("/", (req, res) => {
-  res.json("Hello from the other side");
-});
 
 app.listen(PORT, () => {
   console.log(`Server connected successfully at Port: ${PORT}`);
