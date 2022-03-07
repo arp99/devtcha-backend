@@ -9,7 +9,7 @@ const postSchema = new Schema(
       ref: "user",
     },
     content: {
-      type: String,
+      type: [String],
       required: "Post content cannot be empty",
     },
     reactions: {
