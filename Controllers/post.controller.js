@@ -8,7 +8,7 @@ const getAllPosts = async (req, res) => {
     //fetch posts of user following and urself
     const posts = await Post.find({
       user: { $in: [...user.following, userId] },
-    }).populate("user", "_id, firstName, lastName userName, profileImageUrl");
+    }).populate("user", "_id firstName lastName userName profileImageUrl");
 
     res.json({ success: true, posts });
   } catch (err) {
