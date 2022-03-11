@@ -29,10 +29,10 @@ const createPost = async (req, res) => {
       user: userId,
       content,
       reactions: {
-        like: [],
-        dislike: [],
-        hearts: [],
-        fire: [],
+        love: [],
+        rocket: [],
+        celebrate: [],
+        confused: [],
       },
     });
     await newPost.save();
