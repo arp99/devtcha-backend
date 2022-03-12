@@ -68,7 +68,7 @@ const deletePost = async (req, res) => {
   }
 };
 
-const reactToPost = async (req, res) => {
+const addRemoveReaction = async (req, res) => {
   try {
     const { userId } = req.user;
     const { postId, reaction } = req.params;
@@ -77,8 +77,7 @@ const reactToPost = async (req, res) => {
     //get all userIds who reacted with the particular reaction
     const reactedUserList = await post.reactions.get(reaction);
     //Now check whether current user is already present among the reacted user
-    const hasUserReacted = reactedUserList.find((id) => id === userId);
-
+    const hasUserReacted = reactedUserList.find((id) => id.toString() === userId);
     //so if the user hasn't yet reacted then add this userId to that particular reaction of this post
     if (!hasUserReacted) {
       reactedUserList.push(userId);
@@ -87,6 +86,17 @@ const reactToPost = async (req, res) => {
       res.json({
         success: true,
         message: "Succesfully reacted to post",
+        postId,
+        reaction,
+        userId,
+      });
+    }else{
+      reactedUserList.remove(userId);
+      post.reactions.set(reaction, reactedUserList);
+      await post.save();
+      res.json({
+        success: true,
+        message: "Succesfully removed reaction",
         postId,
         reaction,
         userId,
@@ -100,42 +110,10 @@ const reactToPost = async (req, res) => {
   }
 };
 
-const removeReactionFromPost = async (req, res) => {
-  try {
-    const { userId } = req.user;
-    const { postId, reaction } = req.params;
-
-    const post = await Post.findById(postId);
-    //get all users who reacted with this particular reaction
-    const reactedUserList = await post.reactions.get(reaction);
-
-    const hasUserReacted = reactedUserList.find((id) => id === userId);
-
-    if (hasUserReacted) {
-      //remove this userId from the reacted usersList
-      reactedUserList.remove(userId);
-    }
-    post.reactions.set(reaction, reactedUserList);
-    await post.save();
-    res.json({
-      success: true,
-      message: "Succesfully removed reaction",
-      postId,
-      reaction,
-      userId,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Error in removing reaction",
-    });
-  }
-};
 
 module.exports = {
   getAllPosts,
   createPost,
   deletePost,
-  reactToPost,
-  removeReactionFromPost,
+  addRemoveReaction,
 };

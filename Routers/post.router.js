@@ -3,8 +3,7 @@ const {
   getAllPosts,
   createPost,
   deletePost,
-  reactToPost,
-  removeReactionFromPost,
+  addRemoveReaction,
 } = require("../Controllers/post.controller");
 const router = express.Router();
 const { verifyAuth } = require("../Middlewares/authentication")
@@ -24,7 +23,6 @@ router
 
 router
   .route("/:postId/:reaction")
-  .post(verifyAuth, reactToPost)
-  .delete(verifyAuth, removeReactionFromPost);
+  .post(verifyAuth, addRemoveReaction)
 
 module.exports = router;
