@@ -4,8 +4,6 @@ const updateProfilePicture = async (req, res) => {
   try {
     let { user } = req;
     const { profileImageUrl } = req.body;
-    console.log("Profile image url recieved: ", { profileImageUrl })
-    console.log("User id from token: ", user);
     const foundUser = await User.findOne({ _id: user.userId });
     foundUser.profileImageUrl = profileImageUrl;
     await foundUser.save();
@@ -143,9 +141,48 @@ const unFollowUser = async (req, res) => {
   }
 };
 
+const getProfileSuggestions = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await User.findById(userId);
+    if (user) {
+      // Get the user already following to exclude them from suggested profiles including self
+      let selfAndFollowedUsers = user.following.map((followedUserId) =>
+        followedUserId.toString()
+      );
+      selfAndFollowedUsers.push(userId.toString());
+      //suggest all users except own and who are not already followed by this user
+      let suggestedProfiles = await User.find().select(
+        "userName firstName lastName profileImageUrl"
+      );
+      suggestedProfiles = suggestedProfiles.filter(
+        (user) => !selfAndFollowedUsers.includes(user._id.toString())
+      );
+      if (suggestedProfiles.length !== 0) {
+        res.status(200).json({
+          success: true,
+          suggestedProfiles,
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          messag: "No suggestions found",
+        });
+      }
+    }
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Error at finding User",
+      errorMessage: err.message,
+    });
+  }
+};
+
 module.exports = {
   getUserData,
   updateProfilePicture,
   followUser,
-  unFollowUser
+  unFollowUser,
+  getProfileSuggestions,
 };
