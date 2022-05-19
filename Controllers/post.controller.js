@@ -57,7 +57,14 @@ const createPost = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    await Post.findByIdAndDelete(postId);
+    const { userId } = req.user;
+    const foundPost = await Post.findById(postId)
+
+    if(foundPost.user.toString() === userId){
+      await Post.findByIdAndDelete(postId) 
+    }else{
+      throw new Error("Cannot delete Post")
+    }
     res.json({ success: true, message: "Successfully deleted post" });
   } catch (err) {
     res.status(500).json({
