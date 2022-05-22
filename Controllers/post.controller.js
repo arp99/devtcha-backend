@@ -57,7 +57,14 @@ const createPost = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    await Post.findByIdAndDelete(postId);
+    const { userId } = req.user;
+    const foundPost = await Post.findById(postId);
+
+    if (foundPost.user.toString() === userId) {
+      await Post.findByIdAndDelete(postId);
+    } else {
+      throw new Error("Cannot delete Post");
+    }
     res.json({ success: true, message: "Successfully deleted post" });
   } catch (err) {
     res.status(500).json({
@@ -77,7 +84,9 @@ const addRemoveReaction = async (req, res) => {
     //get all userIds who reacted with the particular reaction
     const reactedUserList = await post.reactions.get(reaction);
     //Now check whether current user is already present among the reacted user
-    const hasUserReacted = reactedUserList.find((id) => id.toString() === userId);
+    const hasUserReacted = reactedUserList.find(
+      (id) => id.toString() === userId
+    );
     //so if the user hasn't yet reacted then add this userId to that particular reaction of this post
     if (!hasUserReacted) {
       reactedUserList.push(userId);
@@ -90,7 +99,7 @@ const addRemoveReaction = async (req, res) => {
         reaction,
         userId,
       });
-    }else{
+    } else {
       reactedUserList.remove(userId);
       post.reactions.set(reaction, reactedUserList);
       await post.save();
@@ -110,10 +119,71 @@ const addRemoveReaction = async (req, res) => {
   }
 };
 
+const bookmarkPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.user;
+
+    const foundUser = await User.findById(userId);
+
+    foundUser.bookmarks = foundUser.bookmarks
+      ? [...new Set([...foundUser.bookmarks, postId])] // if post is already bookmarked do not do anything
+      : [postId];
+    await foundUser.save();
+
+    res.json({
+      success: true,
+      message: "Successfully bookmarked post",
+      postId,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Cannot Bookmart post",
+      errorMessage: err.message,
+    });
+  }
+};
+
+const removeBookmark = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.user;
+
+    const foundUser = await User.findById(userId);
+
+    // check if postId is already bookmarked or not,
+    const isBookmarked = foundUser.bookmarks.find(
+      (id) => id.toString() === postId
+    );
+
+    if (isBookmarked) {
+      foundUser.bookmarks = foundUser.bookmarks.filter(
+        (id) => id.toString() !== postId
+      );
+      foundUser.save();
+    } else {
+      throw new Error("Post is not Bookmarked");
+    }
+
+    res.json({
+      success: true,
+      message: "Successfully removed from bookmarks",
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Error in removing Bookmark",
+      errorMessage: err.message,
+    });
+  }
+};
 
 module.exports = {
   getAllPosts,
   createPost,
   deletePost,
   addRemoveReaction,
+  bookmarkPost,
+  removeBookmark
 };
