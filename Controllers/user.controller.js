@@ -1,4 +1,5 @@
 const { User } = require("../Models/user.model");
+const { Post } = require("../Models/posts.model");
 
 const updateProfilePicture = async (req, res) => {
   try {
@@ -10,7 +11,7 @@ const updateProfilePicture = async (req, res) => {
     res.json({
       success: true,
       message: "Succesfully updated profile picture",
-      data : profileImageUrl
+      data: profileImageUrl,
     });
   } catch (err) {
     res.status(500).json({
@@ -23,23 +24,24 @@ const updateProfilePicture = async (req, res) => {
 const getUserData = async (req, res) => {
   try {
     const { userId } = req.user;
-    console.log("User id from token: ", userId);
     const foundUser = await User.findById(userId)
-    .populate([
-      {
-        path: 'followers',
-        select: 'userName firstName lastName profileImageURL',
-        model: User,
-      },
-      {
-        path: 'following',
-        select: 'userName firstName lastName profileImageURL',
-        model: User,
-      },
-    ])
-    .select(
-      "firstName lastName userName email profileImageUrl"
-    );
+      .populate([
+        {
+          path: "followers",
+          select: "userName firstName lastName profileImageURL",
+          model: User,
+        },
+        {
+          path: "following",
+          select: "userName firstName lastName profileImageURL",
+          model: User,
+        },
+        {
+          path: "bookmarks",
+          model: Post,
+        },
+      ])
+      .select("firstName lastName userName email profileImageUrl");
     res.status(200).json({
       success: true,
       message: "Successfully fetched user data",
