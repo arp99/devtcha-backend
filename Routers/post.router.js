@@ -4,9 +4,11 @@ const {
   createPost,
   deletePost,
   addRemoveReaction,
+  bookmarkPost,
+  removeBookmark,
 } = require("../Controllers/post.controller");
 const router = express.Router();
-const { verifyAuth } = require("../Middlewares/authentication")
+const { verifyAuth } = require("../Middlewares/authentication");
 
 router
   .route("/")
@@ -17,12 +19,15 @@ router
 // router.get("/:userId", getPostsByUser);
 
 router
+  .route("/bookmark/:postId")
+  .post(verifyAuth, bookmarkPost)
+  .delete(verifyAuth, removeBookmark);
+
+router
   .route("/:postId")
   // .put(editPost)
   .delete(verifyAuth, deletePost);
 
-router
-  .route("/:postId/:reaction")
-  .post(verifyAuth, addRemoveReaction)
+router.route("/:postId/:reaction").post(verifyAuth, addRemoveReaction);
 
 module.exports = router;

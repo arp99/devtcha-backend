@@ -47,6 +47,12 @@ const userSchema = new Schema(
         ref: "user",
       },
     ],
+    bookmarks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "post"
+      }
+    ]
   },
   { timestamps: true }
 );
