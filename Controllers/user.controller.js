@@ -28,17 +28,22 @@ const getUserData = async (req, res) => {
       .populate([
         {
           path: "followers",
-          select: "userName firstName lastName profileImageURL",
+          select: "userName firstName lastName profileImageUrl",
           model: User,
         },
         {
           path: "following",
-          select: "userName firstName lastName profileImageURL",
+          select: "userName firstName lastName profileImageUrl",
           model: User,
         },
         {
           path: "bookmarks",
           model: Post,
+          populate: {
+            path: "user",
+            model: User,
+            select: "userName profileImageUrl firstName lastName",
+          },
         },
       ])
       .select("firstName lastName userName email profileImageUrl");
